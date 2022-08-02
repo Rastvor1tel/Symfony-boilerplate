@@ -1,0 +1,50 @@
+version: "3.9"
+services:
+    nginx:
+        container_name: Nginx
+        image: nginx
+        restart: unless-stopped
+        tty: true
+        ports:
+            - "80:80"
+        volumes:
+            - ./hosts:/etc/nginx/conf.d
+            - ./www:/var/www
+            - ./logs/nginx:/var/log/nginx
+        links:
+            - php
+    php:
+        container_name: Symfony
+        restart: unless-stopped
+        build: ./images/php
+        working_dir: /var/www/public
+        environment:
+            PHP_IDE_CONFIG: serverName=debug
+        volumes:
+            - ./etc/php/custom.ini:/usr/local/etc/php/conf.d/custom.ini
+            - ./www:/var/www
+        links:
+            - mysql
+    mysql:
+        container_name: MariaDB
+        image: mariadb
+        volumes:
+        - ./data/mysql:/var/lib/mysql
+        environment:
+            MYSQL_ROOT_PASSWORD: y~jMTsBVV1
+            MYSQL_DATABASE: db_korall
+            MYSQL_USER: korall
+            MYSQL_PASSWORD: yFI1C#HYmv
+        restart: always
+    pma:
+        container_name: PhpMyAdmin
+        image: phpmyadmin/phpmyadmin
+        restart: always
+        links:
+            - mysql:mysql
+        ports:
+            - 8081:80
+        environment:
+            PMA_HOST: mysql
+            MYSQL_USERNAME: root
+            MYSQL_ROOT_PASSWORD: y~jMTsBVV1
